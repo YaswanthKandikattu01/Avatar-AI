@@ -1,0 +1,7 @@
+{
+  "name": "Avatar AI",
+  "description": "A standalone, professional AI assistant named Avatar, powered by the Avatar Lite engine. Designed for high-performance reasoning, coding, and natural conversation.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
