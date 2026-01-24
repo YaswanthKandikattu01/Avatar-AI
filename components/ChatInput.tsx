@@ -4,9 +4,11 @@ import React, { useState, useRef, useEffect } from 'react';
 interface ChatInputProps {
   onSendMessage: (content: string) => void;
   isLoading: boolean;
+  isDarkMode: boolean;
+  placeholder: string;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, isDarkMode, placeholder }) => {
   const [content, setContent] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -32,21 +34,31 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
     }
   }, [content]);
 
+  const inputBg = isDarkMode ? 'bg-[#1a1a1a]' : 'bg-white';
+  const inputBorder = isDarkMode ? 'border-white/[0.08]' : 'border-gray-200';
+  const inputFocusBg = isDarkMode ? 'focus-within:bg-[#222]' : 'focus-within:bg-gray-50';
+  const inputText = isDarkMode ? 'text-white' : 'text-gray-900';
+  const placeholderColor = isDarkMode ? 'placeholder:text-white/30' : 'placeholder:text-gray-400';
+  const footerBg = isDarkMode ? 'bg-[#0f0f0f]' : 'bg-gradient-to-br from-gray-50 via-white to-blue-50';
+
   return (
-    <div className="w-full bg-[#212121] z-40 px-4 md:px-0">
+    <div className={`w-full ${footerBg} z-40 px-4 md:px-0 transition-colors duration-500`}>
       <div className="max-w-3xl mx-auto pt-2 pb-6 md:pb-10 flex flex-col items-center">
         <form
           onSubmit={handleSubmit}
-          className="w-full flex items-end bg-[#2f2f2f] border border-white/[0.08] rounded-[24px] md:rounded-[28px] overflow-hidden shadow-2xl focus-within:ring-1 focus-within:ring-white/10 focus-within:bg-[#353535] transition-all"
+          className={`w-full flex items-end ${inputBg} border ${inputBorder} rounded-[24px] md:rounded-[28px] overflow-hidden shadow-xl hover:shadow-2xl ${inputFocusBg} transition-all duration-300 ${isDarkMode
+              ? 'focus-within:ring-2 focus-within:ring-purple-500/30'
+              : 'focus-within:ring-2 focus-within:ring-blue-400/30'
+            }`}
         >
           <textarea
             ref={textareaRef}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask me anything..."
+            placeholder={placeholder}
             rows={1}
-            className="flex-1 bg-transparent border-none outline-none text-white p-4 md:p-5 pl-6 resize-none text-[15px] md:text-base placeholder:text-white/30 custom-scrollbar leading-relaxed min-h-[56px] max-h-[200px]"
+            className={`flex-1 bg-transparent border-none outline-none ${inputText} p-4 md:p-5 pl-6 resize-none text-[15px] md:text-base ${placeholderColor} custom-scrollbar leading-relaxed min-h-[56px] max-h-[200px] transition-all`}
             disabled={isLoading}
           />
 
@@ -54,9 +66,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
             <button
               type="submit"
               disabled={!content.trim() || isLoading}
-              className={`p-2 rounded-full transition-all duration-200 ${content.trim() && !isLoading
-                  ? 'bg-white text-black hover:bg-gray-200 scale-100'
-                  : 'bg-white/5 text-white/10 scale-90'
+              className={`p-3 rounded-full transition-all duration-300 transform ${content.trim() && !isLoading
+                  ? isDarkMode
+                    ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white hover:shadow-lg hover:scale-110 scale-100'
+                    : 'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white hover:shadow-lg hover:scale-110 scale-100'
+                  : isDarkMode
+                    ? 'bg-white/5 text-white/10 scale-90 cursor-not-allowed'
+                    : 'bg-gray-100 text-gray-300 scale-90 cursor-not-allowed'
                 }`}
             >
               {isLoading ? (
@@ -71,7 +87,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
         </form>
 
         <div className="mt-3">
-          <p className="text-[10px] text-white/20 font-medium tracking-wide uppercase">
+          <p className={`text-[10px] font-medium tracking-wide uppercase transition-colors ${isDarkMode ? 'text-white/20' : 'text-gray-400'
+            }`}>
             Designed by YK ❤️
           </p>
         </div>

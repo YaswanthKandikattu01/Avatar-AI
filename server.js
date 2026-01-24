@@ -77,12 +77,12 @@ const getSystemPrompt = () => {
     timeZoneName: 'short'
   });
 
-  return `You are Avatar Lite, a high-performance AI assistant created by YK.
+  return `You are Avatar, a high-performance AI assistant created by YK.
 
 CURRENT DATE AND TIME: ${dateTimeString}
 
 Internal Details:
-- Identity: You must ALWAYS identify as "Avatar Lite".
+- Identity: You must ALWAYS identify as "Avatar".
 - Creator: YK.
 
 Critical Instructions:
@@ -91,7 +91,7 @@ Critical Instructions:
 3. When asked about the date or time, use the CURRENT DATE AND TIME provided above.
 4. DO NOT provide historical or outdated information when current information is requested.
 5. If you're uncertain about very recent events (last few hours), acknowledge the limitation.
-6. Respond to identity questions with: "I am Avatar Lite, a high-speed AI assistant created by YK. Feel free to ask any questions!"
+6. Respond to identity questions with: "I am Avatar, a high-speed AI assistant created by YK. Feel free to ask any questions!"
 7. NEVER mention external LLM providers.
 8. Use Markdown for formatting.
 9. Be helpful, accurate, and provide the most current information available to you.`;
@@ -159,7 +159,10 @@ app.post('/api/chat', async (req, res) => {
     res.end();
   } catch (error) {
     console.error('[Avatar Server Error]:', error);
-    res.write(`data: ${JSON.stringify({ error: 'System connection interrupted. Please try again later.' })}\n\n`);
+    const userMessage = error.message?.includes('exhausted')
+      ? 'Unable to connect. Please check your internet connection and refresh the page to try again.'
+      : 'Connection interrupted. Please refresh the page and try again.';
+    res.write(`data: ${JSON.stringify({ error: userMessage })}\n\n`);
     res.end();
   }
 });

@@ -12,8 +12,6 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #212121;
-      color: #ffffff;
       margin: 0;
       overflow: hidden;
     }
@@ -28,24 +26,90 @@
       font-family: monospace;
       overflow: auto;
     }
+    /* Dark mode scrollbar */
     .custom-scrollbar::-webkit-scrollbar {
-      width: 6px;
+      width: 8px;
     }
     .custom-scrollbar::-webkit-scrollbar-track {
       background: transparent;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #444;
+      background: rgba(136, 136, 136, 0.3);
       border-radius: 10px;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #555;
+      background: rgba(136, 136, 136, 0.5);
     }
-    .prose { color: #e5e7eb; max-width: none; }
-    .prose h1, .prose h2, .prose h3 { color: #fff; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem; }
-    .prose p { margin-bottom: 1rem; line-height: 1.6; }
-    .prose code { background-color: rgba(255,255,255,0.1); padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.9em; }
-    .prose pre { background-color: #1a1a1a; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 1rem 0; border: 1px solid rgba(255,255,255,0.05); }
+    
+    /* Prose styling for dark mode */
+    .prose { 
+      color: #e5e7eb; 
+      max-width: none; 
+    }
+    .prose h1, .prose h2, .prose h3 { 
+      color: #fff; 
+      font-weight: 600; 
+      margin-top: 1.5rem; 
+      margin-bottom: 0.75rem; 
+    }
+    .prose p { 
+      margin-bottom: 1rem; 
+      line-height: 1.7; 
+    }
+    .prose code { 
+      background-color: rgba(255,255,255,0.1); 
+      padding: 0.2rem 0.4rem; 
+      border-radius: 0.25rem; 
+      font-size: 0.9em; 
+    }
+    .prose pre { 
+      background-color: #1a1a1a; 
+      padding: 1rem; 
+      border-radius: 0.5rem; 
+      overflow-x: auto; 
+      margin: 1rem 0; 
+      border: 1px solid rgba(255,255,255,0.05); 
+    }
+    .prose ul, .prose ol {
+      margin: 0.5rem 0;
+      padding-left: 1.5rem;
+    }
+    .prose li {
+      margin: 0.25rem 0;
+    }
+    
+    /* Light mode prose */
+    .prose-gray {
+      color: #374151;
+    }
+    .prose-gray h1, .prose-gray h2, .prose-gray h3 {
+      color: #111827;
+    }
+    .prose-gray code {
+      background-color: #f3f4f6;
+      color: #1f2937;
+    }
+    .prose-gray pre {
+      background-color: #f9fafb;
+      border: 1px solid #e5e7eb;
+    }
+    
+    /* Animations */
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slide-in-from-bottom-1 {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes zoom-in {
+      from { transform: scale(0.95); }
+      to { transform: scale(1); }
+    }
+    .animate-in {
+      animation: fade-in 0.5s ease-out;
+    }
   </style>
 <script type="importmap">
 {
