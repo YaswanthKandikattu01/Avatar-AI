@@ -99,22 +99,22 @@ const App: React.FC = () => {
             <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-700 pb-20">
               {/* Stunning Avatar Logo with gradient */}
               <div className={`w-20 h-20 md:w-24 md:h-24 rounded-3xl ${isDarkMode
-                  ? 'bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500'
-                  : 'bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500'
+                ? 'bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500'
+                : 'bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500'
                 } flex items-center justify-center mb-6 shadow-2xl transform hover:scale-105 transition-all duration-300 relative overflow-hidden group`}>
                 <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <span className="text-3xl md:text-4xl text-white font-bold tracking-tighter relative z-10">A</span>
 
                 {/* Animated glow effect */}
                 <div className={`absolute inset-0 rounded-3xl blur-xl opacity-50 ${isDarkMode
-                    ? 'bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500'
-                    : 'bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500'
+                  ? 'bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500'
+                  : 'bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500'
                   } animate-pulse`}></div>
               </div>
 
               <h2 className={`text-3xl md:text-5xl font-bold mb-3 text-center px-4 tracking-tight leading-tight bg-gradient-to-r ${isDarkMode
-                  ? 'from-white via-purple-200 to-pink-200'
-                  : 'from-gray-900 via-purple-700 to-pink-600'
+                ? 'from-white via-purple-200 to-pink-200'
+                : 'from-gray-900 via-purple-700 to-pink-600'
                 } bg-clip-text text-transparent`}>
                 {INITIAL_GREETING}
               </h2>
@@ -125,14 +125,14 @@ const App: React.FC = () => {
               </p>
 
               {/* Animated suggestion cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl px-4 mt-8">
+              <div className="grid grid-cols-2 gap-4 max-w-2xl px-4 mt-8">
                 {PLACEHOLDER_SUGGESTIONS.slice(0, 4).map((suggestion, idx) => (
                   <div
                     key={idx}
                     onClick={() => handleSendMessage(suggestion)}
                     className={`p-4 rounded-2xl cursor-pointer transition-all duration-300 transform hover:scale-105 ${isDarkMode
-                        ? 'bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20'
-                        : 'bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md'
+                      ? 'bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20'
+                      : 'bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 shadow-sm hover:shadow-md'
                       }`}
                   >
                     <p className={`text-sm md:text-base ${isDarkMode ? 'text-white/70' : 'text-gray-700'}`}>
