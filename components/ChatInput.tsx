@@ -39,16 +39,17 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, isDarkM
   const inputFocusBg = isDarkMode ? 'focus-within:bg-[#222]' : 'focus-within:bg-gray-50';
   const inputText = isDarkMode ? 'text-white' : 'text-gray-900';
   const placeholderColor = isDarkMode ? 'placeholder:text-white/30' : 'placeholder:text-gray-400';
-  const footerBg = isDarkMode ? 'bg-[#0f0f0f]' : 'bg-gradient-to-br from-gray-50 via-white to-blue-50';
+  const footerBg = isDarkMode ? 'bg-[#0a0a0a]' : 'bg-gradient-to-br from-gray-50 via-white to-blue-50';
 
   return (
     <div className={`w-full ${footerBg} z-40 px-4 md:px-0 transition-colors duration-500`}>
-      <div className="max-w-3xl mx-auto pt-2 pb-6 md:pb-10 flex flex-col items-center">
+      <div className="max-w-3xl mx-auto pt-1 pb-3 md:pb-5 flex flex-col items-center">
+
         <form
           onSubmit={handleSubmit}
           className={`w-full flex items-end ${inputBg} border ${inputBorder} rounded-[24px] md:rounded-[28px] overflow-hidden shadow-xl hover:shadow-2xl ${inputFocusBg} transition-all duration-300 ${isDarkMode
-              ? 'focus-within:ring-2 focus-within:ring-purple-500/30'
-              : 'focus-within:ring-2 focus-within:ring-blue-400/30'
+            ? 'focus-within:ring-2 focus-within:ring-blue-500/30'
+            : 'focus-within:ring-2 focus-within:ring-cyan-400/30'
             }`}
         >
           <textarea
@@ -58,7 +59,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, isDarkM
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             rows={1}
-            className={`flex-1 bg-transparent border-none outline-none ${inputText} p-4 md:p-5 pl-6 resize-none text-[15px] md:text-base ${placeholderColor} custom-scrollbar leading-relaxed min-h-[56px] max-h-[200px] transition-all`}
+            className={`flex-1 bg-transparent border-none outline-none ${inputText} p-3 md:p-4 pl-5 resize-none text-[14px] md:text-[15px] ${placeholderColor} custom-scrollbar leading-relaxed min-h-[44px] max-h-[150px] transition-all`}
             disabled={isLoading}
           />
 
@@ -67,12 +68,12 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, isDarkM
               type="submit"
               disabled={!content.trim() || isLoading}
               className={`p-3 rounded-full transition-all duration-300 transform ${content.trim() && !isLoading
-                  ? isDarkMode
-                    ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white hover:shadow-lg hover:scale-110 scale-100'
-                    : 'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white hover:shadow-lg hover:scale-110 scale-100'
-                  : isDarkMode
-                    ? 'bg-white/5 text-white/10 scale-90 cursor-not-allowed'
-                    : 'bg-gray-100 text-gray-300 scale-90 cursor-not-allowed'
+                ? isDarkMode
+                  ? 'bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 text-white hover:shadow-lg hover:scale-110 scale-100'
+                  : 'bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 text-white hover:shadow-lg hover:scale-110 scale-100'
+                : isDarkMode
+                  ? 'bg-white/5 text-white/10 scale-90 cursor-not-allowed'
+                  : 'bg-gray-100 text-gray-300 scale-90 cursor-not-allowed'
                 }`}
             >
               {isLoading ? (

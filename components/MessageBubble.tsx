@@ -49,7 +49,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isDarkMode }) =>
         )}
         <div className={`relative group ${isAvatar ? 'flex-1' : ''}`}>
           <div className={`p-4 md:p-5 rounded-2xl transition-all duration-300 ${isAvatar
-            ? `${isDarkMode ? 'bg-transparent' : 'bg-white/50 border border-gray-200/50'} ${avatarText} leading-relaxed pr-12`
+            ? `${isDarkMode ? 'bg-transparent' : 'bg-white/50 border border-gray-200/50'} ${avatarText} leading-relaxed pb-10`
             : `${userBg} ${userText} shadow-lg px-5 hover:shadow-xl`
             }`}>
             <div className={`prose ${isDarkMode ? 'prose-invert' : 'prose-gray'} max-w-none text-[15px] md:text-base selection:${isDarkMode ? 'bg-white/20' : 'bg-blue-200/50'}`}>
@@ -85,7 +85,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isDarkMode }) =>
           {isAvatar && message.content && (
             <button
               onClick={handleCopy}
-              className={`absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 p-2 rounded-lg ${copyButtonBg} border backdrop-blur-sm transform hover:scale-110`}
+              className={`absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 p-1.5 rounded-lg ${copyButtonBg} border backdrop-blur-sm transform hover:scale-110 shadow-sm`}
               title="Copy to clipboard"
             >
               {copied ? (

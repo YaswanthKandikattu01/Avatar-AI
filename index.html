@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Avatar AI</title>
+  <title>Genesis</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,10 +15,14 @@
       margin: 0;
       overflow: hidden;
     }
+
     #error-overlay {
       position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.9);
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
       color: #ff5555;
       padding: 20px;
       z-index: 9999;
@@ -26,92 +30,130 @@
       font-family: monospace;
       overflow: auto;
     }
+
     /* Dark mode scrollbar */
     .custom-scrollbar::-webkit-scrollbar {
       width: 8px;
     }
+
     .custom-scrollbar::-webkit-scrollbar-track {
       background: transparent;
     }
+
     .custom-scrollbar::-webkit-scrollbar-thumb {
       background: rgba(136, 136, 136, 0.3);
       border-radius: 10px;
     }
+
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
       background: rgba(136, 136, 136, 0.5);
     }
-    
+
     /* Prose styling for dark mode */
-    .prose { 
-      color: #e5e7eb; 
-      max-width: none; 
+    .prose {
+      color: #e5e7eb;
+      max-width: none;
     }
-    .prose h1, .prose h2, .prose h3 { 
-      color: #fff; 
-      font-weight: 600; 
-      margin-top: 1.5rem; 
-      margin-bottom: 0.75rem; 
+
+    .prose h1,
+    .prose h2,
+    .prose h3 {
+      color: #fff;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
     }
-    .prose p { 
-      margin-bottom: 1rem; 
-      line-height: 1.7; 
+
+    .prose p {
+      margin-bottom: 1rem;
+      line-height: 1.7;
     }
-    .prose code { 
-      background-color: rgba(255,255,255,0.1); 
-      padding: 0.2rem 0.4rem; 
-      border-radius: 0.25rem; 
-      font-size: 0.9em; 
+
+    .prose code {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 0.2rem 0.4rem;
+      border-radius: 0.25rem;
+      font-size: 0.9em;
     }
-    .prose pre { 
-      background-color: #1a1a1a; 
-      padding: 1rem; 
-      border-radius: 0.5rem; 
-      overflow-x: auto; 
-      margin: 1rem 0; 
-      border: 1px solid rgba(255,255,255,0.05); 
+
+    .prose pre {
+      background-color: #1a1a1a;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
-    .prose ul, .prose ol {
+
+    .prose ul,
+    .prose ol {
       margin: 0.5rem 0;
       padding-left: 1.5rem;
     }
+
     .prose li {
       margin: 0.25rem 0;
     }
-    
+
     /* Light mode prose */
     .prose-gray {
       color: #374151;
     }
-    .prose-gray h1, .prose-gray h2, .prose-gray h3 {
+
+    .prose-gray h1,
+    .prose-gray h2,
+    .prose-gray h3 {
       color: #111827;
     }
+
     .prose-gray code {
       background-color: #f3f4f6;
       color: #1f2937;
     }
+
     .prose-gray pre {
       background-color: #f9fafb;
       border: 1px solid #e5e7eb;
     }
-    
+
     /* Animations */
     @keyframes fade-in {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
+
     @keyframes slide-in-from-bottom-1 {
-      from { transform: translateY(10px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+      from {
+        transform: translateY(10px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
+
     @keyframes zoom-in {
-      from { transform: scale(0.95); }
-      to { transform: scale(1); }
+      from {
+        transform: scale(0.95);
+      }
+
+      to {
+        transform: scale(1);
+      }
     }
+
     .animate-in {
       animation: fade-in 0.5s ease-out;
     }
   </style>
-<script type="importmap">
+  <script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@^19.2.3",
@@ -125,21 +167,23 @@
   }
 }
 </script>
-<script>
-  window.onerror = function(msg, url, line, col, error) {
-    const overlay = document.getElementById('error-overlay');
-    if (overlay) {
-      overlay.style.display = 'block';
-      overlay.innerHTML += `<div><strong>Error:</strong> ${msg}<br><small>${url}:${line}:${col}</small></div><br>`;
-    }
-    return false;
-  };
-</script>
+  <script>
+    window.onerror = function (msg, url, line, col, error) {
+      const overlay = document.getElementById('error-overlay');
+      if (overlay) {
+        overlay.style.display = 'block';
+        overlay.innerHTML += `<div><strong>Error:</strong> ${msg}<br><small>${url}:${line}:${col}</small></div><br>`;
+      }
+      return false;
+    };
+  </script>
 </head>
+
 <body>
   <div id="error-overlay"></div>
   <div id="root"></div>
   <!-- Entry point now works natively because server transpiles .tsx to .js -->
   <script type="module" src="./index.tsx"></script>
 </body>
+
 </html>
