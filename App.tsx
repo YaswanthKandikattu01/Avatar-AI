@@ -4,7 +4,6 @@ import Header from './components/Header.tsx';
 import MessageBubble from './components/MessageBubble.tsx';
 import ChatInput from './components/ChatInput.tsx';
 import { Message, Role } from './types.ts';
-import { INITIAL_GREETING } from './constants.ts';
 import { avatarService } from './services/avatarService.ts';
 
 const App: React.FC = () => {
@@ -113,6 +112,7 @@ const App: React.FC = () => {
         onClearConversation={handleClearConversation}
         showMobileLogo={showMobileLogo}
         onToggleMobileLogo={hasStarted ? toggleMobileLogo : undefined}
+        hasStarted={hasStarted}
       />
 
       {/* Main Content Area - Transitions from Centered to Split Screen */}
@@ -131,27 +131,6 @@ const App: React.FC = () => {
             ? 'opacity-100 translate-y-0 h-auto'
             : 'opacity-0 -translate-y-10 h-0 overflow-hidden pointer-events-none'
             } z-20`}>
-            <h2 className={`text-4xl md:text-6xl font-bold mb-8 tracking-tight leading-tight bg-gradient-to-r ${isDarkMode
-              ? 'from-cyan-300 via-blue-400 to-indigo-400'
-              : 'from-cyan-600 via-blue-600 to-indigo-600'
-              } bg-clip-text text-transparent`}>
-              {INITIAL_GREETING}
-            </h2>
-
-            {/* Model Tag */}
-            <div className="flex justify-center">
-              <div className={`flex items-center gap-2 px-5 py-2.5 rounded-full cursor-pointer transition-all duration-300 ${isDarkMode
-                ? 'bg-white/5 border border-white/10'
-                : 'bg-gray-100 border border-gray-200'
-                }`}>
-                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-                  <div className="w-2 h-2 rounded-full bg-white/90"></div>
-                </div>
-                <span className={`text-sm font-medium ${isDarkMode ? 'text-white/80' : 'text-gray-700'}`}>
-                  Avatar
-                </span>
-              </div>
-            </div>
           </div>
 
           {/* JARVIS LOGO CONTAINER - Flex Grow Item */}
@@ -300,30 +279,59 @@ const App: React.FC = () => {
                   </svg>
                 </div>
 
-                {/* STATIC CORE */}
+                {/* ROTATING CORE */}
                 <div className="absolute inset-0 flex items-center justify-center z-10">
                   <div className={`absolute w-24 h-24 md:w-28 md:h-28 rounded-full blur-xl jarvis-core-outer-glow transition-all duration-700 ${isLoading ? 'bg-orange-500/20' : (isDarkMode ? 'bg-blue-500/20' : 'bg-blue-600/30')
                     }`}></div>
                   <div className={`absolute w-20 h-20 md:w-24 md:h-24 rounded-full blur-lg jarvis-core-mid-glow transition-all duration-700 ${isLoading ? 'bg-amber-400/30' : (isDarkMode ? 'bg-cyan-400/30' : 'bg-cyan-500/30')
                     }`}></div>
 
-                  <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shadow-2xl jarvis-core relative transition-all duration-700 ${isLoading
-                    ? 'bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-600'
-                    : (isDarkMode ? 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600' : 'bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-700')
-                    }`}>
+                  <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shadow-2xl jarvis-core jarvis-core-rotate relative transition-all duration-700 overflow-hidden ${isLoading
+                    ? 'bg-gradient-radial from-orange-500 via-orange-400 to-amber-600'
+                    : (isDarkMode ? 'bg-gradient-radial from-cyan-500 via-blue-500 to-indigo-600' : 'bg-gradient-radial from-cyan-600 via-blue-600 to-indigo-700')
+                    }`} style={{
+                      background: isLoading 
+                        ? 'radial-gradient(circle at 30% 30%, rgba(251, 146, 60, 0.9), rgba(251, 191, 36, 0.8), rgba(217, 119, 6, 0.9))'
+                        : isDarkMode 
+                          ? 'radial-gradient(circle at 30% 30%, rgba(34, 211, 238, 0.9), rgba(59, 130, 246, 0.8), rgba(99, 102, 241, 0.9))'
+                          : 'radial-gradient(circle at 30% 30%, rgba(6, 182, 212, 0.9), rgba(37, 99, 235, 0.8), rgba(79, 70, 229, 0.9))'
+                    }}>
+                    {/* 3D Highlight/Shine effect */}
+                    <div className={`absolute top-[15%] left-[25%] w-[35%] h-[35%] rounded-full blur-md transition-all duration-700 ${isLoading
+                      ? 'bg-white/40'
+                      : (isDarkMode ? 'bg-white/30' : 'bg-white/50')
+                      }`}></div>
+                    {/* Shadow for depth */}
+                    <div className={`absolute bottom-[15%] right-[25%] w-[40%] h-[40%] rounded-full blur-lg transition-all duration-700 ${isLoading
+                      ? 'bg-orange-900/50'
+                      : (isDarkMode ? 'bg-indigo-900/40' : 'bg-indigo-900/50')
+                      }`}></div>
+                    
                     <div className={`absolute inset-2 rounded-full border-2 transition-all duration-700 ${isLoading ? 'border-orange-300/40' : (isDarkMode ? 'border-cyan-300/40' : 'border-cyan-200/50')
                       }`}></div>
                     <div className={`absolute inset-4 rounded-full border transition-all duration-700 ${isLoading ? 'border-amber-300/30' : (isDarkMode ? 'border-blue-300/30' : 'border-blue-200/40')
                       }`}></div>
 
-                    <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-700 ${isLoading
-                      ? 'bg-gradient-to-br from-orange-300 via-amber-400 to-yellow-500'
-                      : (isDarkMode ? 'bg-gradient-to-br from-cyan-300 via-blue-400 to-indigo-500' : 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600')
-                      }`}>
+                    <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-700 relative overflow-hidden ${isLoading
+                      ? ''
+                      : ''
+                      }`} style={{
+                        background: isLoading
+                          ? 'radial-gradient(circle at 30% 30%, rgba(251, 146, 60, 0.9), rgba(251, 191, 36, 0.8), rgba(234, 88, 12, 0.9))'
+                          : isDarkMode
+                            ? 'radial-gradient(circle at 30% 30%, rgba(34, 211, 238, 0.9), rgba(59, 130, 246, 0.8), rgba(99, 102, 241, 0.9))'
+                            : 'radial-gradient(circle at 30% 30%, rgba(6, 182, 212, 0.9), rgba(37, 99, 235, 0.8), rgba(79, 70, 229, 0.9))'
+                      }}>
                       <div className={`w-6 h-6 md:w-7 md:h-7 rounded-full shadow-inner jarvis-inner-core transition-all duration-700 ${isLoading
-                        ? 'bg-gradient-to-br from-white via-orange-100 to-amber-200'
-                        : (isDarkMode ? 'bg-gradient-to-br from-white via-cyan-100 to-blue-200' : 'bg-gradient-to-br from-white via-cyan-50 to-blue-100')
-                        }`}></div>
+                        ? 'bg-gradient-radial from-white via-orange-100 to-amber-200'
+                        : (isDarkMode ? 'bg-gradient-radial from-white via-cyan-100 to-blue-200' : 'bg-gradient-radial from-white via-cyan-50 to-blue-100')
+                        }`} style={{
+                          background: isLoading
+                            ? 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(255, 237, 213, 0.8), rgba(254, 215, 170, 0.9))'
+                            : isDarkMode
+                              ? 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(207, 250, 254, 0.8), rgba(191, 219, 254, 0.9))'
+                              : 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(236, 254, 255, 0.8), rgba(219, 234, 254, 0.9))'
+                        }}></div>
                     </div>
                   </div>
                 </div>
@@ -441,8 +449,16 @@ const App: React.FC = () => {
         }
         @keyframes innerCorePulse { 0%, 100% { opacity: 0.9; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
         @keyframes ambientGlow { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.1); } }
+        @keyframes coreRotate360 {
+          0% { transform: rotateY(0deg); }
+          100% { transform: rotateY(360deg); }
+        }
         
         .jarvis-core { animation: coreGlow 3s ease-in-out infinite; }
+        .jarvis-core-rotate { 
+          animation: coreGlow 3s ease-in-out infinite, coreRotate360 10s linear infinite;
+          transform-style: preserve-3d;
+        }
         .jarvis-inner-core { animation: innerCorePulse 2s ease-in-out infinite; }
         .jarvis-ambient-glow { animation: ambientGlow 4s ease-in-out infinite; }
         .jarvis-core-outer-glow { animation: ambientGlow 3s ease-in-out infinite; }

@@ -8,6 +8,7 @@ interface HeaderProps {
   onClearConversation: () => void;
   showMobileLogo?: boolean;
   onToggleMobileLogo?: () => void;
+  hasStarted?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -17,7 +18,8 @@ const Header: React.FC<HeaderProps> = ({
   onBackToHome,
   onClearConversation,
   showMobileLogo = true,
-  onToggleMobileLogo
+  onToggleMobileLogo,
+  hasStarted = false
 }) => {
   const [hasScrolled, setHasScrolled] = useState(false);
 
@@ -42,15 +44,17 @@ const Header: React.FC<HeaderProps> = ({
 
         {/* LEFT SIDE: Back & Theme */}
         <div className="flex items-center gap-2 md:gap-3 w-[140px] md:w-[160px]">
-          <button
-            onClick={onBackToHome}
-            className={`p-2 rounded-full transition-all duration-300 ${iconHover} group`}
-            title="Back to Home"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`w-5 h-5 md:w-6 md:h-6 ${textColor} opacity-70 group-hover:opacity-100 transition-opacity`}>
-              <path fillRule="evenodd" d="M11.03 3.97a.75.75 0 010 1.06l-6.22 6.22H21a.75.75 0 010 1.5H4.81l6.22 6.22a.75.75 0 11-1.06 1.06l-7.5-7.5a.75.75 0 010-1.06l7.5-7.5a.75.75 0 011.06 0z" clipRule="evenodd" />
-            </svg>
-          </button>
+          {hasStarted && (
+            <button
+              onClick={onBackToHome}
+              className={`p-2 rounded-full transition-all duration-300 ${iconHover} group`}
+              title="Back to Home"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`w-5 h-5 md:w-6 md:h-6 ${textColor} opacity-70 group-hover:opacity-100 transition-opacity`}>
+                <path fillRule="evenodd" d="M11.03 3.97a.75.75 0 010 1.06l-6.22 6.22H21a.75.75 0 010 1.5H4.81l6.22 6.22a.75.75 0 11-1.06 1.06l-7.5-7.5a.75.75 0 010-1.06l7.5-7.5a.75.75 0 011.06 0z" clipRule="evenodd" />
+              </svg>
+            </button>
+          )}
 
           <button
             onClick={onToggleTheme}
@@ -86,8 +90,20 @@ const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        {/* RIGHT SIDE: Visual Toggle (Mobile) & Clear */}
-        <div className="flex items-center justify-end gap-2 w-[140px] md:w-[160px]">
+        {/* RIGHT SIDE: Avatar Tag, Visual Toggle (Mobile) & Clear */}
+        <div className="flex items-center justify-end gap-2 md:gap-3 w-[140px] md:w-[180px]">
+          {/* Avatar Tag */}
+          <div className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300 ${isDarkMode
+            ? 'bg-white/5 border border-white/10'
+            : 'bg-gray-100 border border-gray-200'
+            }`}>
+            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+              <div className="w-1.5 h-1.5 rounded-full bg-white/90"></div>
+            </div>
+            <span className={`text-xs font-medium ${isDarkMode ? 'text-white/80' : 'text-gray-700'}`}>
+              Avatar
+            </span>
+          </div>
 
           {/* Mobile Visual Toggle - Only visible when needed */}
           {onToggleMobileLogo && (
@@ -109,15 +125,17 @@ const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          <button
-            onClick={onClearConversation}
-            className={`p-2 rounded-full transition-all duration-300 ${iconHover} group`}
-            title="Clear Conversation"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 md:w-6 md:h-6 text-red-500 opacity-80 group-hover:opacity-100 transition-opacity">
-              <path fillRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z" clipRule="evenodd" />
-            </svg>
-          </button>
+          {hasStarted && (
+            <button
+              onClick={onClearConversation}
+              className={`p-2 rounded-full transition-all duration-300 ${iconHover} group`}
+              title="Clear Conversation"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 md:w-6 md:h-6 text-red-500 opacity-80 group-hover:opacity-100 transition-opacity">
+                <path fillRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z" clipRule="evenodd" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
     </header>
