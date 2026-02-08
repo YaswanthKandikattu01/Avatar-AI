@@ -12,6 +12,7 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [showMobileLogo, setShowMobileLogo] = useState(true); // Mobile Logic 50/50
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -25,7 +26,10 @@ const App: React.FC = () => {
   }, [messages, isLoading]);
 
   const handleSendMessage = async (content: string) => {
-    if (!hasStarted) setHasStarted(true);
+    if (!hasStarted) {
+      setHasStarted(true);
+      setShowMobileLogo(true); // Reset to visible on start
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -73,11 +77,17 @@ const App: React.FC = () => {
 
   const handleBackToHome = () => {
     setHasStarted(false);
+    setShowMobileLogo(true);
   };
 
   const handleClearConversation = () => {
     setMessages([]);
     setHasStarted(false);
+    setShowMobileLogo(true);
+  };
+
+  const toggleMobileLogo = () => {
+    setShowMobileLogo(!showMobileLogo);
   };
 
   const bgColor = isDarkMode ? 'bg-[#0a0a0a]' : 'bg-gradient-to-br from-gray-50 via-white to-blue-50';
@@ -101,6 +111,8 @@ const App: React.FC = () => {
         onToggleTheme={toggleTheme}
         onBackToHome={handleBackToHome}
         onClearConversation={handleClearConversation}
+        showMobileLogo={showMobileLogo}
+        onToggleMobileLogo={hasStarted ? toggleMobileLogo : undefined}
       />
 
       {/* Main Content Area - Transitions from Centered to Split Screen */}
@@ -110,14 +122,14 @@ const App: React.FC = () => {
         <div className={`relative transition-all duration-1000 ease-in-out flex flex-col items-center
           ${!hasStarted
             ? 'w-full h-full justify-between py-12 md:py-16'
-            : 'w-full h-[30vh] md:w-[45%] md:h-full justify-center border-b md:border-b-0 md:border-r border-white/5 bg-black/20'
+            : `w-full ${showMobileLogo ? 'h-[50vh] opacity-100' : 'h-0 opacity-0 overflow-hidden'} flex-shrink-0 md:w-[45%] md:h-full md:opacity-100 justify-center border-b md:border-b-0 md:border-r border-white/5 bg-black/20`
           }
         `}>
 
           {/* Welcome Text Section - Flex Item */}
           <div className={`w-full text-center transition-all duration-700 px-4 ${!hasStarted
-              ? 'opacity-100 translate-y-0 h-auto'
-              : 'opacity-0 -translate-y-10 h-0 overflow-hidden pointer-events-none'
+            ? 'opacity-100 translate-y-0 h-auto'
+            : 'opacity-0 -translate-y-10 h-0 overflow-hidden pointer-events-none'
             } z-20`}>
             <h2 className={`text-4xl md:text-6xl font-bold mb-8 tracking-tight leading-tight bg-gradient-to-r ${isDarkMode
               ? 'from-cyan-300 via-blue-400 to-indigo-400'
@@ -144,7 +156,7 @@ const App: React.FC = () => {
 
           {/* JARVIS LOGO CONTAINER - Flex Grow Item */}
           {/* This element grows to take available space, centering partially by flex mechanics */}
-          <div className={`transition-all duration-1000 ease-in-out z-10 flex-1 flex items-center justify-center w-full my-4 ${!hasStarted ? 'scale-75 md:scale-100' : 'scale-[0.6] md:scale-90'
+          <div className={`transition-all duration-1000 ease-in-out z-10 flex-1 flex items-center justify-center w-full my-4 ${!hasStarted ? 'scale-75 md:scale-100' : 'scale-[0.8] md:scale-90'
             }`}>
             {/* JARVIS Armillary Sphere Component */}
             <div className="jarvis-container relative" style={{ perspective: '1000px' }}>
@@ -152,8 +164,8 @@ const App: React.FC = () => {
 
                 {/* Outer ambient glow */}
                 <div className={`absolute inset-[-30%] rounded-full blur-3xl jarvis-ambient-glow transition-all duration-1000 ${isLoading
-                    ? 'bg-gradient-radial from-orange-500/20 via-amber-400/5 to-transparent'
-                    : (isDarkMode ? 'bg-gradient-radial from-blue-500/20 via-cyan-400/5 to-transparent' : 'bg-gradient-radial from-blue-600/30 via-cyan-500/10 to-transparent')
+                  ? 'bg-gradient-radial from-orange-500/20 via-amber-400/5 to-transparent'
+                  : (isDarkMode ? 'bg-gradient-radial from-blue-500/20 via-cyan-400/5 to-transparent' : 'bg-gradient-radial from-blue-600/30 via-cyan-500/10 to-transparent')
                   }`}></div>
 
                 {/* RING 2 */}
@@ -296,8 +308,8 @@ const App: React.FC = () => {
                     }`}></div>
 
                   <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shadow-2xl jarvis-core relative transition-all duration-700 ${isLoading
-                      ? 'bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-600'
-                      : (isDarkMode ? 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600' : 'bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-700')
+                    ? 'bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-600'
+                    : (isDarkMode ? 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600' : 'bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-700')
                     }`}>
                     <div className={`absolute inset-2 rounded-full border-2 transition-all duration-700 ${isLoading ? 'border-orange-300/40' : (isDarkMode ? 'border-cyan-300/40' : 'border-cyan-200/50')
                       }`}></div>
@@ -305,12 +317,12 @@ const App: React.FC = () => {
                       }`}></div>
 
                     <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-700 ${isLoading
-                        ? 'bg-gradient-to-br from-orange-300 via-amber-400 to-yellow-500'
-                        : (isDarkMode ? 'bg-gradient-to-br from-cyan-300 via-blue-400 to-indigo-500' : 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600')
+                      ? 'bg-gradient-to-br from-orange-300 via-amber-400 to-yellow-500'
+                      : (isDarkMode ? 'bg-gradient-to-br from-cyan-300 via-blue-400 to-indigo-500' : 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600')
                       }`}>
                       <div className={`w-6 h-6 md:w-7 md:h-7 rounded-full shadow-inner jarvis-inner-core transition-all duration-700 ${isLoading
-                          ? 'bg-gradient-to-br from-white via-orange-100 to-amber-200'
-                          : (isDarkMode ? 'bg-gradient-to-br from-white via-cyan-100 to-blue-200' : 'bg-gradient-to-br from-white via-cyan-50 to-blue-100')
+                        ? 'bg-gradient-to-br from-white via-orange-100 to-amber-200'
+                        : (isDarkMode ? 'bg-gradient-to-br from-white via-cyan-100 to-blue-200' : 'bg-gradient-to-br from-white via-cyan-50 to-blue-100')
                         }`}></div>
                     </div>
                   </div>
@@ -334,8 +346,8 @@ const App: React.FC = () => {
 
           {/* Welcome INPUT position - Only visible when NOT started */}
           <div className={`w-full max-w-xl mx-auto px-6 transition-all duration-500 ${!hasStarted
-              ? 'opacity-100 translate-y-0 h-auto'
-              : 'opacity-0 translate-y-10 h-0 overflow-hidden pointer-events-none'
+            ? 'opacity-100 translate-y-0 h-auto'
+            : 'opacity-0 translate-y-10 h-0 overflow-hidden pointer-events-none'
             }`}>
             <ChatInput
               onSendMessage={handleSendMessage}
@@ -348,17 +360,17 @@ const App: React.FC = () => {
 
         {/* RIGHT SIDE: CHAT INTERFACE - Only visible when HAS STARTED */}
         <div className={`
-          relative flex flex-col bg-opacity-50
+          relative flex flex-col bg-opacity-50 overflow-hidden
           transition-all duration-1000 ease-in-out
           ${!hasStarted
-            ? 'w-full h-0 md:w-0 md:h-full opacity-0 overflow-hidden'
-            : 'w-full h-[70vh] md:w-[55%] md:h-full opacity-100'
+            ? 'w-full h-0 md:w-0 md:h-full opacity-0'
+            : 'w-full flex-1 md:w-[55%] md:h-full opacity-100'
           }
         `}>
 
+
           <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 custom-scrollbar" ref={scrollContainerRef}>
             <div className="max-w-2xl mx-auto min-h-full flex flex-col justify-end">
-              <div className="flex-1"></div>
               {messages.map((msg) => (
                 <MessageBubble key={msg.id} message={msg} isDarkMode={isDarkMode} />
               ))}
