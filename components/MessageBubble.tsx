@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -11,6 +10,7 @@ interface MessageBubbleProps {
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isDarkMode }) => {
   const isAvatar = message.role === Role.AVATAR;
+  const isAvatar2 = message.model === 'avatar-2.0';
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -25,11 +25,18 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isDarkMode }) =>
     }
   };
 
-  const avatarBg = isDarkMode
+  const avatarBg = isAvatar2
+    ? 'bg-gradient-to-br from-cyan-400 via-blue-600 to-indigo-600'
+    : isDarkMode
     ? 'bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-orange-500/20'
     : 'bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-500/20';
 
-  const avatarBorder = isDarkMode ? 'border-purple-500/30' : 'border-blue-500/30';
+  const avatarBorder = isAvatar2
+    ? 'border-cyan-400/50 shadow-cyan-500/20'
+    : isDarkMode
+    ? 'border-purple-500/30'
+    : 'border-blue-500/30';
+
   const avatarText = isDarkMode ? 'text-gray-200' : 'text-gray-800';
 
   const userBg = isDarkMode
@@ -37,22 +44,52 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isDarkMode }) =>
     : 'bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500';
 
   const userText = 'text-white';
-  const copyButtonBg = isDarkMode ? 'bg-white/5 hover:bg-white/10 border-white/10' : 'bg-gray-100 hover:bg-gray-200 border-gray-300';
+  const copyButtonBg = isDarkMode
+    ? 'bg-white/5 hover:bg-white/10 border-white/10'
+    : 'bg-gray-100 hover:bg-gray-200 border-gray-300';
 
   return (
-    <div className={`flex w-full mb-6 md:mb-10 ${isAvatar ? 'justify-start' : 'justify-end'} animate-in fade-in slide-in-from-bottom-1 duration-500`}>
+    <div
+      className={`flex w-full mb-6 md:mb-10 ${
+        isAvatar ? 'justify-start' : 'justify-end'
+      } animate-in fade-in slide-in-from-bottom-1 duration-500`}
+    >
       <div className={`max-w-[90%] md:max-w-[85%] ${isAvatar ? 'flex flex-row gap-3 md:gap-4' : ''}`}>
         {isAvatar && (
-          <div className={`flex-shrink-0 w-8 h-8 md:w-9 md:h-9 rounded-full ${avatarBg} flex items-center justify-center text-xs md:text-sm font-bold ${userText} shadow-lg border ${avatarBorder} mt-1 transform hover:scale-110 transition-transform duration-300`}>
-            A
+          <div
+            className={`flex-shrink-0 w-8 h-8 md:w-9 md:h-9 rounded-full ${avatarBg} flex items-center justify-center text-xs md:text-sm font-bold text-white shadow-lg border ${avatarBorder} mt-1 transform hover:scale-110 transition-transform duration-300`}
+          >
+            {isAvatar2 ? '2.0' : 'A'}
           </div>
         )}
         <div className={`relative group ${isAvatar ? 'flex-1' : ''}`}>
-          <div className={`p-4 md:p-5 rounded-2xl transition-all duration-300 ${isAvatar
-            ? `${isDarkMode ? 'bg-transparent' : 'bg-white/50 border border-gray-200/50'} ${avatarText} leading-relaxed pb-10`
-            : `${userBg} ${userText} shadow-lg px-5 hover:shadow-xl`
-            }`}>
-            <div className={`prose ${isDarkMode ? 'prose-invert' : 'prose-gray'} max-w-none text-[15px] md:text-base selection:${isDarkMode ? 'bg-white/20' : 'bg-blue-200/50'}`}>
+          {/* Avatar Model Badge if Avatar 2.0 */}
+          {isAvatar && isAvatar2 && (
+            <div className="flex items-center gap-1.5 mb-1.5 ml-1">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 border border-cyan-500/30 text-cyan-400">
+                Avatar 2.0 • Math & Reasoning
+              </span>
+            </div>
+          )}
+
+          <div
+            className={`p-4 md:p-5 rounded-2xl transition-all duration-300 ${
+              isAvatar
+                ? `${
+                    isDarkMode
+                      ? 'bg-transparent'
+                      : 'bg-white/50 border border-gray-200/50'
+                  } ${avatarText} leading-relaxed pb-10`
+                : `${userBg} ${userText} shadow-lg px-5 hover:shadow-xl`
+            }`}
+          >
+            <div
+              className={`prose ${
+                isDarkMode ? 'prose-invert' : 'prose-gray'
+              } max-w-none text-[15px] md:text-base selection:${
+                isDarkMode ? 'bg-white/20' : 'bg-blue-200/50'
+              }`}
+            >
               {isAvatar ? (
                 <div className="relative">
                   <ReactMarkdown
@@ -60,20 +97,36 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isDarkMode }) =>
                     components={{
                       code: ({ node, inline, className, children, ...props }) => {
                         return inline ? (
-                          <code className={`${isDarkMode ? 'bg-white/10' : 'bg-gray-200'} px-1.5 py-0.5 rounded text-sm`} {...props}>
+                          <code
+                            className={`${
+                              isDarkMode ? 'bg-white/10' : 'bg-gray-200'
+                            } px-1.5 py-0.5 rounded text-sm font-mono`}
+                            {...props}
+                          >
                             {children}
                           </code>
                         ) : (
-                          <code className={`block ${isDarkMode ? 'bg-black/30' : 'bg-gray-100'} p-3 rounded-lg overflow-x-auto`} {...props}>
+                          <code
+                            className={`block ${
+                              isDarkMode ? 'bg-black/40 border border-white/5' : 'bg-gray-100'
+                            } p-3 rounded-lg overflow-x-auto font-mono text-sm leading-relaxed`}
+                            {...props}
+                          >
                             {children}
                           </code>
                         );
-                      }
+                      },
                     }}
                   >
                     {message.content}
                   </ReactMarkdown>
-                  {!message.content && <span className={`inline-block w-2 h-4 ${isDarkMode ? 'bg-white/40' : 'bg-gray-400'} animate-pulse ml-1 align-middle rounded-sm`} />}
+                  {!message.content && (
+                    <span
+                      className={`inline-block w-2 h-4 ${
+                        isDarkMode ? 'bg-white/40' : 'bg-gray-400'
+                      } animate-pulse ml-1 align-middle rounded-sm`}
+                    />
+                  )}
                 </div>
               ) : (
                 <div className="whitespace-pre-wrap break-words">{message.content}</div>
@@ -93,8 +146,18 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isDarkMode }) =>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               ) : (
-                <svg className={`w-4 h-4 ${isDarkMode ? 'text-white/60' : 'text-gray-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                <svg
+                  className={`w-4 h-4 ${isDarkMode ? 'text-white/60' : 'text-gray-600'}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
                 </svg>
               )}
             </button>

@@ -1,17 +1,20 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import Header from './components/Header.tsx';
 import MessageBubble from './components/MessageBubble.tsx';
 import ChatInput from './components/ChatInput.tsx';
-import { Message, Role } from './types.ts';
+import AnnouncementBanner from './components/AnnouncementBanner.tsx';
+import { Message, Role, AvatarModelId } from './types.ts';
 import { avatarService } from './services/avatarService.ts';
+import { PLACEHOLDER_SUGGESTIONS, AVATAR_2_PLACEHOLDER_SUGGESTIONS } from './constants.ts';
 
 const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [showMobileLogo, setShowMobileLogo] = useState(true); // Mobile Logic 50/50
+  const [showMobileLogo, setShowMobileLogo] = useState(true);
+  const [selectedModel, setSelectedModel] = useState<AvatarModelId>('avatar');
+  const [showAnnouncement, setShowAnnouncement] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -27,17 +30,17 @@ const App: React.FC = () => {
   const handleSendMessage = async (content: string) => {
     if (!hasStarted) {
       setHasStarted(true);
-      setShowMobileLogo(true); // Reset to visible on start
+      setShowMobileLogo(true);
     }
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: Role.USER,
       content,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
 
     const avatarMsgId = (Date.now() + 1).toString();
@@ -45,26 +48,33 @@ const App: React.FC = () => {
       id: avatarMsgId,
       role: Role.AVATAR,
       content: '',
-      timestamp: new Date()
+      timestamp: new Date(),
+      model: selectedModel,
     };
 
-    setMessages(prev => [...prev, avatarMessage]);
+    setMessages((prev) => [...prev, avatarMessage]);
 
     try {
-      const conversationHistory = messages.slice(-10).map(msg => ({
+      const conversationHistory = messages.slice(-10).map((msg) => ({
         role: msg.role === Role.USER ? 'user' : 'assistant',
-        content: msg.content
+        content: msg.content,
       }));
 
       let fullContent = '';
-      for await (const chunk of avatarService.processQueryStream(content, conversationHistory)) {
+      for await (const chunk of avatarService.processQueryStream(
+        content,
+        conversationHistory,
+        selectedModel
+      )) {
         fullContent += chunk;
-        setMessages(prev => prev.map(msg =>
-          msg.id === avatarMsgId ? { ...msg, content: fullContent } : msg
-        ));
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === avatarMsgId ? { ...msg, content: fullContent } : msg
+          )
+        );
       }
     } catch (error) {
-      console.error("Genesis communication error", error);
+      console.error('Genesis communication error', error);
     } finally {
       setIsLoading(false);
     }
@@ -89,21 +99,44 @@ const App: React.FC = () => {
     setShowMobileLogo(!showMobileLogo);
   };
 
-  const bgColor = isDarkMode ? 'bg-[#0a0a0a]' : 'bg-gradient-to-br from-gray-50 via-white to-blue-50';
+  const bgColor = isDarkMode
+    ? 'bg-[#0a0a0a]'
+    : 'bg-gradient-to-br from-gray-50 via-white to-blue-50';
   const textColor = isDarkMode ? 'text-white' : 'text-gray-900';
 
-  // Dynamic Logo Colors
-  const cPri = isDarkMode ? "#22d3ee" : "#0284c7"; // Cyan
-  const cSec = isDarkMode ? "#60a5fa" : "#2563eb"; // Blue
-  const cAcc = isDarkMode ? "#6366f1" : "#4f46e5"; // Indigo
-  const cAccL = isDarkMode ? "#818cf8" : "#6366f1"; // Indigo Light
-  const cLoadP = isDarkMode ? "#fb923c" : "#ea580c"; // Orange
-  const cLoadS = isDarkMode ? "#f97316" : "#c2410c"; // Dark Orange
-  const cLoadL = isDarkMode ? "#fdba74" : "#fb923c"; // Light Orange
-  const cLoadA = isDarkMode ? "#f59e0b" : "#d97706"; // Amber
+  // Dynamic Logo Colors based on state & active model
+  const isAvatar2 = selectedModel === 'avatar-2.0';
+  const cPri = isAvatar2
+    ? isDarkMode ? '#38bdf8' : '#0284c7'
+    : isDarkMode ? '#22d3ee' : '#0284c7';
+  const cSec = isAvatar2
+    ? isDarkMode ? '#818cf8' : '#4f46e5'
+    : isDarkMode ? '#60a5fa' : '#2563eb';
+  const cAcc = isAvatar2
+    ? isDarkMode ? '#c084fc' : '#7c3aed'
+    : isDarkMode ? '#6366f1' : '#4f46e5';
+  const cAccL = isAvatar2
+    ? isDarkMode ? '#e879f9' : '#9333ea'
+    : isDarkMode ? '#818cf8' : '#6366f1';
+  const cLoadP = isDarkMode ? '#fb923c' : '#ea580c';
+  const cLoadS = isDarkMode ? '#f97316' : '#c2410c';
+  const cLoadL = isDarkMode ? '#fdba74' : '#fb923c';
+  const cLoadA = isDarkMode ? '#f59e0b' : '#d97706';
+
+  const currentSuggestions = isAvatar2
+    ? AVATAR_2_PLACEHOLDER_SUGGESTIONS
+    : PLACEHOLDER_SUGGESTIONS;
+
+  const inputPlaceholder = isAvatar2
+    ? 'Ask Avatar 2.0 a math, coding, or reasoning problem...'
+    : 'Ask Genesis (Avatar 1.2) anything...';
 
   return (
-    <div className={`flex flex-col h-[100dvh] ${bgColor} ${textColor} selection:${isDarkMode ? 'bg-white/10' : 'bg-blue-200/50'} overflow-hidden transition-colors duration-500`}>
+    <div
+      className={`flex flex-col h-[100dvh] ${bgColor} ${textColor} selection:${
+        isDarkMode ? 'bg-white/10' : 'bg-blue-200/50'
+      } overflow-hidden transition-colors duration-500`}
+    >
       <Header
         isLoading={isLoading}
         isDarkMode={isDarkMode}
@@ -113,39 +146,81 @@ const App: React.FC = () => {
         showMobileLogo={showMobileLogo}
         onToggleMobileLogo={hasStarted ? toggleMobileLogo : undefined}
         hasStarted={hasStarted}
+        selectedModel={selectedModel}
+        onSelectModel={setSelectedModel}
+      />
+
+      {/* Dismissible Avatar 2.0 Announcement Banner */}
+      <AnnouncementBanner
+        isOpen={showAnnouncement}
+        onClose={() => setShowAnnouncement(false)}
+        onSwitchToAvatar2={() => {
+          setSelectedModel('avatar-2.0');
+          setShowAnnouncement(false);
+        }}
+        isDarkMode={isDarkMode}
+        currentModel={selectedModel}
       />
 
       {/* Main Content Area - Transitions from Centered to Split Screen */}
       <div className="flex-1 relative flex flex-col md:flex-row overflow-hidden">
-
         {/* LEFT SIDE: JARVIS Logo Area - Refactored for Flex Responsiveness */}
-        <div className={`relative transition-all duration-1000 ease-in-out flex flex-col items-center
-          ${!hasStarted
-            ? 'w-full h-full justify-between py-12 md:py-16'
-            : `w-full ${showMobileLogo ? 'h-[50vh] opacity-100' : 'h-0 opacity-0 overflow-hidden'} flex-shrink-0 md:w-[45%] md:h-full md:opacity-100 justify-center border-b md:border-b-0 md:border-r border-white/5 bg-black/20`
-          }
-        `}>
-
+        <div
+          className={`relative transition-all duration-1000 ease-in-out flex flex-col items-center ${
+            !hasStarted
+              ? 'w-full h-full justify-between py-12 md:py-16'
+              : `w-full ${
+                  showMobileLogo ? 'h-[50vh] opacity-100' : 'h-0 opacity-0 overflow-hidden'
+                } flex-shrink-0 md:w-[45%] md:h-full md:opacity-100 justify-center border-b md:border-b-0 md:border-r border-white/5 bg-black/20`
+          }`}
+        >
           {/* Welcome Text Section - Flex Item */}
-          <div className={`w-full text-center transition-all duration-700 px-4 ${!hasStarted
-            ? 'opacity-100 translate-y-0 h-auto'
-            : 'opacity-0 -translate-y-10 h-0 overflow-hidden pointer-events-none'
-            } z-20`}>
+          <div
+            className={`w-full text-center transition-all duration-700 px-4 ${
+              !hasStarted
+                ? 'opacity-100 translate-y-0 h-auto pt-4 md:pt-6'
+                : 'opacity-0 -translate-y-10 h-0 overflow-hidden pointer-events-none'
+            } z-20`}
+          >
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-2 bg-white/5 border border-white/10 backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+              <span className="text-xs font-medium tracking-wide">
+                {isAvatar2
+                  ? 'Avatar 2.0 Active • Math & Code Reasoning'
+                  : 'Genesis • Powered by Avatar 1.2'}
+              </span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+              What can I help with?
+            </h1>
           </div>
 
           {/* JARVIS LOGO CONTAINER - Flex Grow Item */}
-          {/* This element grows to take available space, centering partially by flex mechanics */}
-          <div className={`transition-all duration-1000 ease-in-out z-10 flex-1 flex items-center justify-center w-full my-4 ${!hasStarted ? 'scale-75 md:scale-100' : 'scale-[0.8] md:scale-90'
-            }`}>
+          <div
+            className={`transition-all duration-1000 ease-in-out z-10 flex-1 flex items-center justify-center w-full my-4 ${
+              !hasStarted ? 'scale-75 md:scale-100' : 'scale-[0.8] md:scale-90'
+            }`}
+          >
             {/* JARVIS Armillary Sphere Component */}
             <div className="jarvis-container relative" style={{ perspective: '1000px' }}>
-              <div className="w-52 h-52 md:w-64 md:h-64 relative flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
-
+              <div
+                className="w-52 h-52 md:w-64 md:h-64 relative flex items-center justify-center"
+                style={{ transformStyle: 'preserve-3d' }}
+              >
                 {/* Outer ambient glow */}
-                <div className={`absolute inset-[-30%] rounded-full blur-3xl jarvis-ambient-glow transition-all duration-1000 ${isLoading
-                  ? 'bg-gradient-radial from-orange-500/20 via-amber-400/5 to-transparent'
-                  : (isDarkMode ? 'bg-gradient-radial from-blue-500/20 via-cyan-400/5 to-transparent' : 'bg-gradient-radial from-blue-600/30 via-cyan-500/10 to-transparent')
-                  }`}></div>
+                <div
+                  className={`absolute inset-[-30%] rounded-full blur-3xl jarvis-ambient-glow transition-all duration-1000 ${
+                    isLoading
+                      ? 'bg-gradient-radial from-orange-500/20 via-amber-400/5 to-transparent'
+                      : isDarkMode
+                      ? isAvatar2
+                        ? 'bg-gradient-radial from-purple-500/25 via-cyan-400/10 to-transparent'
+                        : 'bg-gradient-radial from-blue-500/20 via-cyan-400/5 to-transparent'
+                      : isAvatar2
+                      ? 'bg-gradient-radial from-indigo-600/30 via-cyan-500/15 to-transparent'
+                      : 'bg-gradient-radial from-blue-600/30 via-cyan-500/10 to-transparent'
+                  }`}
+                ></div>
 
                 {/* RING 2 */}
                 <div className="absolute inset-[5%] orbital-ring-2" style={{ transformStyle: 'preserve-3d' }}>
@@ -281,57 +356,109 @@ const App: React.FC = () => {
 
                 {/* ROTATING CORE */}
                 <div className="absolute inset-0 flex items-center justify-center z-10">
-                  <div className={`absolute w-24 h-24 md:w-28 md:h-28 rounded-full blur-xl jarvis-core-outer-glow transition-all duration-700 ${isLoading ? 'bg-orange-500/20' : (isDarkMode ? 'bg-blue-500/20' : 'bg-blue-600/30')
-                    }`}></div>
-                  <div className={`absolute w-20 h-20 md:w-24 md:h-24 rounded-full blur-lg jarvis-core-mid-glow transition-all duration-700 ${isLoading ? 'bg-amber-400/30' : (isDarkMode ? 'bg-cyan-400/30' : 'bg-cyan-500/30')
-                    }`}></div>
+                  <div
+                    className={`absolute w-24 h-24 md:w-28 md:h-28 rounded-full blur-xl jarvis-core-outer-glow transition-all duration-700 ${
+                      isLoading
+                        ? 'bg-orange-500/20'
+                        : isDarkMode
+                        ? isAvatar2
+                          ? 'bg-purple-500/30'
+                          : 'bg-blue-500/20'
+                        : isAvatar2
+                        ? 'bg-purple-600/30'
+                        : 'bg-blue-600/30'
+                    }`}
+                  ></div>
+                  <div
+                    className={`absolute w-20 h-20 md:w-24 md:h-24 rounded-full blur-lg jarvis-core-mid-glow transition-all duration-700 ${
+                      isLoading
+                        ? 'bg-amber-400/30'
+                        : isDarkMode
+                        ? isAvatar2
+                          ? 'bg-cyan-400/40'
+                          : 'bg-cyan-400/30'
+                        : 'bg-cyan-500/30'
+                    }`}
+                  ></div>
 
-                  <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shadow-2xl jarvis-core jarvis-core-rotate relative transition-all duration-700 overflow-hidden ${isLoading
-                    ? 'bg-gradient-radial from-orange-500 via-orange-400 to-amber-600'
-                    : (isDarkMode ? 'bg-gradient-radial from-cyan-500 via-blue-500 to-indigo-600' : 'bg-gradient-radial from-cyan-600 via-blue-600 to-indigo-700')
-                    }`} style={{
-                      background: isLoading 
+                  <div
+                    className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shadow-2xl jarvis-core jarvis-core-rotate relative transition-all duration-700 overflow-hidden`}
+                    style={{
+                      background: isLoading
                         ? 'radial-gradient(circle at 30% 30%, rgba(251, 146, 60, 0.9), rgba(251, 191, 36, 0.8), rgba(217, 119, 6, 0.9))'
-                        : isDarkMode 
-                          ? 'radial-gradient(circle at 30% 30%, rgba(34, 211, 238, 0.9), rgba(59, 130, 246, 0.8), rgba(99, 102, 241, 0.9))'
-                          : 'radial-gradient(circle at 30% 30%, rgba(6, 182, 212, 0.9), rgba(37, 99, 235, 0.8), rgba(79, 70, 229, 0.9))'
-                    }}>
+                        : isAvatar2
+                        ? 'radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.9), rgba(129, 140, 248, 0.85), rgba(168, 85, 247, 0.9))'
+                        : isDarkMode
+                        ? 'radial-gradient(circle at 30% 30%, rgba(34, 211, 238, 0.9), rgba(59, 130, 246, 0.8), rgba(99, 102, 241, 0.9))'
+                        : 'radial-gradient(circle at 30% 30%, rgba(6, 182, 212, 0.9), rgba(37, 99, 235, 0.8), rgba(79, 70, 229, 0.9))',
+                    }}
+                  >
                     {/* 3D Highlight/Shine effect */}
-                    <div className={`absolute top-[15%] left-[25%] w-[35%] h-[35%] rounded-full blur-md transition-all duration-700 ${isLoading
-                      ? 'bg-white/40'
-                      : (isDarkMode ? 'bg-white/30' : 'bg-white/50')
-                      }`}></div>
+                    <div
+                      className={`absolute top-[15%] left-[25%] w-[35%] h-[35%] rounded-full blur-md transition-all duration-700 ${
+                        isLoading ? 'bg-white/40' : isDarkMode ? 'bg-white/30' : 'bg-white/50'
+                      }`}
+                    ></div>
                     {/* Shadow for depth */}
-                    <div className={`absolute bottom-[15%] right-[25%] w-[40%] h-[40%] rounded-full blur-lg transition-all duration-700 ${isLoading
-                      ? 'bg-orange-900/50'
-                      : (isDarkMode ? 'bg-indigo-900/40' : 'bg-indigo-900/50')
-                      }`}></div>
-                    
-                    <div className={`absolute inset-2 rounded-full border-2 transition-all duration-700 ${isLoading ? 'border-orange-300/40' : (isDarkMode ? 'border-cyan-300/40' : 'border-cyan-200/50')
-                      }`}></div>
-                    <div className={`absolute inset-4 rounded-full border transition-all duration-700 ${isLoading ? 'border-amber-300/30' : (isDarkMode ? 'border-blue-300/30' : 'border-blue-200/40')
-                      }`}></div>
+                    <div
+                      className={`absolute bottom-[15%] right-[25%] w-[40%] h-[40%] rounded-full blur-lg transition-all duration-700 ${
+                        isLoading
+                          ? 'bg-orange-900/50'
+                          : isAvatar2
+                          ? 'bg-purple-950/50'
+                          : isDarkMode
+                          ? 'bg-indigo-900/40'
+                          : 'bg-indigo-900/50'
+                      }`}
+                    ></div>
 
-                    <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-700 relative overflow-hidden ${isLoading
-                      ? ''
-                      : ''
-                      }`} style={{
+                    <div
+                      className={`absolute inset-2 rounded-full border-2 transition-all duration-700 ${
+                        isLoading
+                          ? 'border-orange-300/40'
+                          : isAvatar2
+                          ? 'border-cyan-200/50'
+                          : isDarkMode
+                          ? 'border-cyan-300/40'
+                          : 'border-cyan-200/50'
+                      }`}
+                    ></div>
+                    <div
+                      className={`absolute inset-4 rounded-full border transition-all duration-700 ${
+                        isLoading
+                          ? 'border-amber-300/30'
+                          : isAvatar2
+                          ? 'border-indigo-300/40'
+                          : isDarkMode
+                          ? 'border-blue-300/30'
+                          : 'border-blue-200/40'
+                      }`}
+                    ></div>
+
+                    <div
+                      className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-700 relative overflow-hidden"
+                      style={{
                         background: isLoading
                           ? 'radial-gradient(circle at 30% 30%, rgba(251, 146, 60, 0.9), rgba(251, 191, 36, 0.8), rgba(234, 88, 12, 0.9))'
+                          : isAvatar2
+                          ? 'radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.95), rgba(168, 85, 247, 0.85), rgba(129, 140, 248, 0.9))'
                           : isDarkMode
-                            ? 'radial-gradient(circle at 30% 30%, rgba(34, 211, 238, 0.9), rgba(59, 130, 246, 0.8), rgba(99, 102, 241, 0.9))'
-                            : 'radial-gradient(circle at 30% 30%, rgba(6, 182, 212, 0.9), rgba(37, 99, 235, 0.8), rgba(79, 70, 229, 0.9))'
-                      }}>
-                      <div className={`w-6 h-6 md:w-7 md:h-7 rounded-full shadow-inner jarvis-inner-core transition-all duration-700 ${isLoading
-                        ? 'bg-gradient-radial from-white via-orange-100 to-amber-200'
-                        : (isDarkMode ? 'bg-gradient-radial from-white via-cyan-100 to-blue-200' : 'bg-gradient-radial from-white via-cyan-50 to-blue-100')
-                        }`} style={{
+                          ? 'radial-gradient(circle at 30% 30%, rgba(34, 211, 238, 0.9), rgba(59, 130, 246, 0.8), rgba(99, 102, 241, 0.9))'
+                          : 'radial-gradient(circle at 30% 30%, rgba(6, 182, 212, 0.9), rgba(37, 99, 235, 0.8), rgba(79, 70, 229, 0.9))',
+                      }}
+                    >
+                      <div
+                        className="w-6 h-6 md:w-7 md:h-7 rounded-full shadow-inner jarvis-inner-core transition-all duration-700"
+                        style={{
                           background: isLoading
                             ? 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(255, 237, 213, 0.8), rgba(254, 215, 170, 0.9))'
+                            : isAvatar2
+                            ? 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.98), rgba(232, 121, 249, 0.8), rgba(192, 132, 252, 0.9))'
                             : isDarkMode
-                              ? 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(207, 250, 254, 0.8), rgba(191, 219, 254, 0.9))'
-                              : 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(236, 254, 255, 0.8), rgba(219, 234, 254, 0.9))'
-                        }}></div>
+                            ? 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(207, 250, 254, 0.8), rgba(191, 219, 254, 0.9))'
+                            : 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(236, 254, 255, 0.8), rgba(219, 234, 254, 0.9))',
+                        }}
+                      ></div>
                     </div>
                   </div>
                 </div>
@@ -347,37 +474,58 @@ const App: React.FC = () => {
                   <div className="energy-particle p7"></div>
                   <div className="energy-particle p8"></div>
                 </div>
-
               </div>
             </div>
           </div>
 
-          {/* Welcome INPUT position - Only visible when NOT started */}
-          <div className={`w-full max-w-xl mx-auto px-6 transition-all duration-500 ${!hasStarted
-            ? 'opacity-100 translate-y-0 h-auto'
-            : 'opacity-0 translate-y-10 h-0 overflow-hidden pointer-events-none'
-            }`}>
+          {/* Inspiration Chips & Welcome INPUT position */}
+          <div
+            className={`w-full max-w-xl mx-auto px-6 transition-all duration-500 ${
+              !hasStarted
+                ? 'opacity-100 translate-y-0 h-auto'
+                : 'opacity-0 translate-y-10 h-0 overflow-hidden pointer-events-none'
+            }`}
+          >
+            {/* Suggestion Chips */}
+            <div className="flex flex-wrap justify-center gap-1.5 mb-4 max-w-lg mx-auto">
+              {currentSuggestions.slice(0, 3).map((sug, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleSendMessage(sug)}
+                  className={`text-[11px] px-3 py-1.5 rounded-full border transition-all duration-200 text-left truncate max-w-xs ${
+                    isDarkMode
+                      ? 'bg-white/5 hover:bg-white/10 border-white/10 text-white/70 hover:text-white'
+                      : 'bg-white hover:bg-gray-100 border-gray-200 text-gray-700 hover:text-gray-900 shadow-sm'
+                  }`}
+                  title={sug}
+                >
+                  💡 {sug}
+                </button>
+              ))}
+            </div>
+
             <ChatInput
               onSendMessage={handleSendMessage}
               isLoading={isLoading}
               isDarkMode={isDarkMode}
-              placeholder="Ask Genesis anything..."
+              placeholder={inputPlaceholder}
+              selectedModel={selectedModel}
             />
           </div>
         </div>
 
         {/* RIGHT SIDE: CHAT INTERFACE - Only visible when HAS STARTED */}
-        <div className={`
-          relative flex flex-col bg-opacity-50 overflow-hidden
-          transition-all duration-1000 ease-in-out
-          ${!hasStarted
-            ? 'w-full h-0 md:w-0 md:h-full opacity-0'
-            : 'w-full flex-1 md:w-[55%] md:h-full opacity-100'
-          }
-        `}>
-
-
-          <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 custom-scrollbar" ref={scrollContainerRef}>
+        <div
+          className={`relative flex flex-col bg-opacity-50 overflow-hidden transition-all duration-1000 ease-in-out ${
+            !hasStarted
+              ? 'w-full h-0 md:w-0 md:h-full opacity-0'
+              : 'w-full flex-1 md:w-[55%] md:h-full opacity-100'
+          }`}
+        >
+          <div
+            className="flex-1 overflow-y-auto px-4 md:px-8 py-6 custom-scrollbar"
+            ref={scrollContainerRef}
+          >
             <div className="max-w-2xl mx-auto min-h-full flex flex-col justify-end">
               {messages.map((msg) => (
                 <MessageBubble key={msg.id} message={msg} isDarkMode={isDarkMode} />
@@ -393,13 +541,12 @@ const App: React.FC = () => {
                 onSendMessage={handleSendMessage}
                 isLoading={isLoading}
                 isDarkMode={isDarkMode}
-                placeholder="Message Genesis..."
+                placeholder={inputPlaceholder}
+                selectedModel={selectedModel}
               />
             </div>
           </div>
-
         </div>
-
       </div>
 
       <style>{`
@@ -476,8 +623,12 @@ const App: React.FC = () => {
           width: 3px;
           height: 3px;
           border-radius: 50%;
-          background: radial-gradient(circle, ${isDarkMode ? '#60a5fa' : '#2563eb'} 0%, ${isDarkMode ? '#3b82f6' : '#1d4ed8'} 50%, transparent 100%);
-          box-shadow: 0 0 6px ${isDarkMode ? '#3b82f6' : '#1d4ed8'}, 0 0 12px ${isDarkMode ? '#22d3ee' : '#0891b2'};
+          background: radial-gradient(circle, ${isDarkMode ? '#60a5fa' : '#2563eb'} 0%, ${
+        isDarkMode ? '#3b82f6' : '#1d4ed8'
+      } 50%, transparent 100%);
+          box-shadow: 0 0 6px ${isDarkMode ? '#3b82f6' : '#1d4ed8'}, 0 0 12px ${
+        isDarkMode ? '#22d3ee' : '#0891b2'
+      };
         }
         .p1 { top: 50%; left: 50%; --tx: 80px; --ty: -60px; animation: floatParticle 3s ease-out infinite; }
         .p2 { top: 50%; left: 50%; --tx: -70px; --ty: -50px; animation: floatParticle 3.5s ease-out infinite 0.5s; }
